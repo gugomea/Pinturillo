@@ -60,7 +60,7 @@ public class Pinturillo extends JFrame {
         split.setLeftComponent(izquierda);
         split.setRightComponent(zonaDibujo);
 
-
+        setSize(1000, 500);
         setVisible(true);
     }
 

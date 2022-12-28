@@ -15,7 +15,7 @@ public class Paint extends JComponent {
 
     private Point actual, anterior;
 
-    int grosor = 5;
+    private int grosor = 5;
 
     public Paint(){
         addMouseListener(new MouseAdapter() {
