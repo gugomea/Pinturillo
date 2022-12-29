@@ -34,4 +34,29 @@ public class Usuario {
             throw new RuntimeException(e);
         }
     }
+
+    public void esAnfitrion(){
+        try {
+            oos.writeObject("Anfitrion");
+            oos.writeObject(true);
+            oos.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void noEsAnfitrion(){
+        try {
+            oos.writeObject("Anfitrion");
+            oos.writeObject(false);
+            oos.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        Usuario usr = obj instanceof Usuario ? (Usuario) obj : null;
+        return usr != null && this.id.equals(usr.id);
+    }
 }

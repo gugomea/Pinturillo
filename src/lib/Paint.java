@@ -27,49 +27,55 @@ public class Paint extends JComponent {
     private ObjectOutputStream oos;
     private ObjectInputStream ois;
 
-    public Paint(ObjectOutputStream os, ObjectInputStream is){
+    private boolean[] esAnitrion;
+    public Paint(ObjectOutputStream os, ObjectInputStream is, boolean[] eA){
+        this.esAnitrion = eA;
         this.oos = os;
         this.ois = is;
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                anterior = e.getPoint();
-                graphicPintar.fillOval(anterior.x, anterior.y, grosor, grosor);
-                puntos.add(new Object[]{anterior, graphicPintar.getColor(), grosor});
-                repaint();
+                if(esAnitrion[0]){
+                    anterior = e.getPoint();
+                    graphicPintar.fillOval(anterior.x, anterior.y, grosor, grosor);
+                    puntos.add(new Object[]{anterior, graphicPintar.getColor(), grosor});
+                    repaint();
+                }
             }
         });
         addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
-                actual = e.getPoint();
-                int x = actual.x , y = actual.y;
-                int ax = anterior.x, ay = anterior.y;
-                int diffx = x - ax, diffy = y - ay;
-                //longitud del eje en la que la distancia es maxima(para poder dibujar el mayor número de puntos)
-                int longitud = Math.max(Math.abs(diffx), Math.abs(diffy));
-                double pendiente = (double) diffy / diffx;
-                if(Math.abs(pendiente) <= 1){
-                    for(int i = 1; i <= longitud; i++){
-                        int k = diffx >= 0 ? i : - i;
-                        double j = diffx >= 0 ? pendiente: -pendiente;
-                        Point p = new Point(ax + k, (int)Math.round(ay + (i * j)));
-                        graphicPintar.fillOval(p.x, p.y, grosor, grosor);
-                        puntos.add(new Object[]{p, graphicPintar.getColor(), grosor});
+                if(esAnitrion[0]){
+                    actual = e.getPoint();
+                    int x = actual.x , y = actual.y;
+                    int ax = anterior.x, ay = anterior.y;
+                    int diffx = x - ax, diffy = y - ay;
+                    //longitud del eje en la que la distancia es maxima(para poder dibujar el mayor número de puntos)
+                    int longitud = Math.max(Math.abs(diffx), Math.abs(diffy));
+                    double pendiente = (double) diffy / diffx;
+                    if(Math.abs(pendiente) <= 1){
+                        for(int i = 1; i <= longitud; i++){
+                            int k = diffx >= 0 ? i : - i;
+                            double j = diffx >= 0 ? pendiente: -pendiente;
+                            Point p = new Point(ax + k, (int)Math.round(ay + (i * j)));
+                            graphicPintar.fillOval(p.x, p.y, grosor, grosor);
+                            puntos.add(new Object[]{p, graphicPintar.getColor(), grosor});
+                        }
+                    }else{
+                        for(int i = 1; i <= longitud; i++){
+                            int k = diffy >= 0 ? i: -i;
+                            double j = diffy >= 0 ? 1 / pendiente: -1/pendiente;
+                            Point p = new Point((int)Math.round(ax + (i * j)), ay + k);
+                            graphicPintar.fillOval(p.x, p.y, grosor, grosor);
+                            puntos.add(new Object[]{p, graphicPintar.getColor(), grosor});
+                        }
                     }
-                }else{
-                    for(int i = 1; i <= longitud; i++){
-                        int k = diffy >= 0 ? i: -i;
-                        double j = diffy >= 0 ? 1 / pendiente: -1/pendiente;
-                        Point p = new Point((int)Math.round(ax + (i * j)), ay + k);
-                        graphicPintar.fillOval(p.x, p.y, grosor, grosor);
-                        puntos.add(new Object[]{p, graphicPintar.getColor(), grosor});
-                    }
+                    graphicPintar.fillOval(x , y, grosor, grosor);
+                    puntos.add(new Object[]{actual, graphicPintar.getColor(), grosor});
+                    repaint();// actualiza lo que hemos pintado
+                    anterior = actual;
                 }
-                graphicPintar.fillOval(x , y, grosor, grosor);
-                puntos.add(new Object[]{actual, graphicPintar.getColor(), grosor});
-                repaint();// actualiza lo que hemos pintado
-                anterior = actual;
             }
         });
         addMouseListener(new MouseAdapter() {

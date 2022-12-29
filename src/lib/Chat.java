@@ -19,7 +19,9 @@ public class Chat extends JComponent {
 
     private ObjectOutputStream oos;
     private Paint p;
-    public Chat(ObjectOutputStream os, Paint paint){
+    private boolean[] esAnfitrion;
+    public Chat(ObjectOutputStream os, Paint paint, boolean[] eA){
+        this.esAnfitrion = eA;
         this.oos = os;
         this.chat = new JScrollPane();
         JList<String> msj = new JList<>();
