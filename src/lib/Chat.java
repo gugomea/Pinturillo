@@ -3,6 +3,8 @@ package lib;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 
@@ -47,13 +49,7 @@ public class Chat extends JComponent {
         bEnviar.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                try {
-                    oos.writeObject("Mensaje");
-                    oos.writeObject(txtEnviar.getText());
-                    oos.flush();
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                }
+                mandar();
             }
         });
         bBorrar.addActionListener(new AbstractAction() {
@@ -62,6 +58,24 @@ public class Chat extends JComponent {
                 paint.borrar();
             }
         });
+        txtEnviar.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode() == KeyEvent.VK_ENTER){
+                    mandar();
+                }
+            }
+        });
+    }
+    private void mandar(){
+        try {
+            oos.writeObject("Mensaje");
+            oos.writeObject(txtEnviar.getText());
+            oos.flush();
+            txtEnviar.setText("");
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     public void escribir(String mensaje){

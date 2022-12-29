@@ -114,7 +114,7 @@ public class Paint extends JComponent {
             Point p = (Point)o[0];
             Color c = (Color)o[1];
             int g = (int)o[2];
-            graphicPintar.setColor(Color.RED);
+            graphicPintar.setColor(c);
             graphicPintar.fillOval(p.x, p.y, g, g);
         }
         graphicPintar.setColor(ant);
