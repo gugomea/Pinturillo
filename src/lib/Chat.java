@@ -2,6 +2,9 @@ package lib;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 
 public class Chat extends JComponent {
 
@@ -12,7 +15,10 @@ public class Chat extends JComponent {
     private JButton bPaleta;
     private JTextField txtEnviar;
 
-    public Chat(){
+    private ObjectOutputStream oos;
+    private Paint p;
+    public Chat(ObjectOutputStream os, Paint paint){
+        this.oos = os;
         this.chat = new JScrollPane();
         JList<String> msj = new JList<>();
         mensajeChat = new DefaultListModel<>();
@@ -32,5 +38,33 @@ public class Chat extends JComponent {
         this.setLayout(new BorderLayout());
         this.add(chat, BorderLayout.CENTER);
         this.add(abajo, BorderLayout.SOUTH);
+        bPaleta.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                paint.setcolor(JColorChooser.showDialog(null, "Elije Color", Color.BLACK));
+            }
+        });
+        bEnviar.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    oos.writeObject("Mensaje");
+                    oos.writeObject(txtEnviar.getText());
+                    oos.flush();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+        bBorrar.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                paint.borrar();
+            }
+        });
+    }
+
+    public void escribir(String mensaje){
+        this.mensajeChat.addElement(mensaje);
     }
 }
