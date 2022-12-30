@@ -81,9 +81,11 @@ public class Paint extends JComponent {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
-                LinkedList<Object[]> ll = new LinkedList<>(puntos);
-                try { oos.writeObject("Puntos");oos.writeObject(ll); oos.flush();} catch (IOException ex) { throw new RuntimeException(ex); }
-                puntos.clear();
+                if(esAnitrion[0]){
+                    LinkedList<Object[]> ll = new LinkedList<>(puntos);
+                    try { oos.writeObject("Puntos");oos.writeObject(ll); oos.flush();} catch (IOException ex) { throw new RuntimeException(ex); }
+                    puntos.clear();
+                }
             }
         });
         addMouseWheelListener(new MouseAdapter() {
