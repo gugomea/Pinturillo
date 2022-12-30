@@ -1,5 +1,6 @@
 import lib.Chat;
 import lib.Paint;
+import net.Cronometro;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,9 +11,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.LinkedList;
+import java.util.Random;
+import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
 
 public class Pinturillo extends JFrame {
+    private String nombre;
     //Arriba
     private JLabel lblPalabra;
     private JTextField txtPalabra;
@@ -30,16 +35,30 @@ public class Pinturillo extends JFrame {
     private boolean[] esAnfitrion = new boolean[1];
 
     private Socket conexion;
+
+    private String palabra;
     private void inicializar(){
-        CountDownLatch count = new CountDownLatch(1);
+        try {
+            conexion = new Socket("localhost", 55_555);
+            oos = new ObjectOutputStream(conexion.getOutputStream());
+            ois = new ObjectInputStream(conexion.getInputStream());
+            oos.writeObject(nombre);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        this.zonaDibujo = new Paint(oos, ois, esAnfitrion);
+
+        this.chatterino = new Chat(oos, zonaDibujo, esAnfitrion);
+        this.lblPalabra = new JLabel("Palabra: ");
+        this.lblPalabra.setFont(new Font(Font.DIALOG, Font.BOLD, 20));
+        this.txtPalabra = new JTextField("__ __ __ __ __ __ __");
+        this.txtPalabra.setFont(new Font(Font.DIALOG, Font.BOLD, 20));
+
         Thread escuchador = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    conexion = new Socket("localhost", 55_555);
-                    oos = new ObjectOutputStream(conexion.getOutputStream());
-                    ois = new ObjectInputStream(conexion.getInputStream());
-                    count.countDown(); // para poder asegurarnos de que this.oos y this.ois se inicializan.
                     while(true){
                         String tipo = (String)ois.readObject();
                         switch (tipo) {
@@ -51,7 +70,19 @@ public class Pinturillo extends JFrame {
                                 LinkedList<Object[]> nuevoDibujo = (LinkedList<Object[]>) ois.readObject();
                                 zonaDibujo.pintar(nuevoDibujo);
                             }
-                            case "Anfitrion" -> esAnfitrion[0] = (boolean) ois.readObject();
+                            case "Actualizar" ->
+                                txtPalabra.setText(palabra);
+                            case "Palabra" -> {
+                                palabra = (String) ois.readObject();
+                                if(esAnfitrion[0])
+                                    txtPalabra.setText(palabra);
+                                else
+                                    txtPalabra.setText("______________");
+                            }
+                            case "Borrar" ->
+                                zonaDibujo.borrar();
+                            case "Anfitrion" ->
+                                esAnfitrion[0] = (boolean) ois.readObject();
                         }
                     }
                 } catch (IOException | ClassNotFoundException e){
@@ -60,20 +91,10 @@ public class Pinturillo extends JFrame {
             }
         });
         escuchador.start();
-        try { count.await(); } catch (InterruptedException e) { throw new RuntimeException(e); }
-
-
-        this.lblPalabra = new JLabel("Palabra: ");
-        this.lblPalabra.setFont(new Font(Font.DIALOG, Font.BOLD, 20));
-        this.txtPalabra = new JTextField("__ __ __ __ __ __ __");
-        this.txtPalabra.setFont(new Font(Font.DIALOG, Font.BOLD, 20));
-
-        this.zonaDibujo = new Paint(oos, ois, esAnfitrion);
-
-        this.chatterino = new Chat(oos, zonaDibujo, esAnfitrion);
     }
-    public Pinturillo(String titulo){
+    public Pinturillo(String titulo, String nombre){
         super(titulo);
+        this.nombre = nombre;
         inicializar();
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -108,6 +129,19 @@ public class Pinturillo extends JFrame {
     }
 
     public static void main(String[] args) {
-        Pinturillo p = new Pinturillo("titulo");
+        LinkedList<String> l = new LinkedList<>();
+        l.add("Guillermo");
+        l.add("Jorge");
+        l.add("Margarita");
+        l.add("Nico");
+        l.add("Iker");
+        l.add("Lucia");
+        l.add("Oscar");
+        l.add("Uno");
+        l.add("Otro");
+        l.add("NombredeOtro");
+        Random r = new Random();
+        int i = r.nextInt(l.size());
+        Pinturillo p = new Pinturillo("titulo", l.get(i));
     }
 }

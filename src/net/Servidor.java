@@ -41,7 +41,7 @@ public class Servidor {
                     Socket conexion = server.accept();
                     AtenderPeticion peticion = new AtenderPeticion(conexion, usuarios);
                     pool.execute(peticion);
-                }catch (IOException e){
+                }catch (IOException | ClassNotFoundException | InterruptedException e){
                     e.printStackTrace();
                 }
             }

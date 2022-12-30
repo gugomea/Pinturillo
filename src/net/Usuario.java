@@ -10,19 +10,29 @@ public class Usuario {
     public ObjectInputStream ois;
     public String id;
 
-    public Usuario(String id, ObjectOutputStream os, ObjectInputStream is){
+    public String nombre;
+    public Usuario(String id, ObjectOutputStream os, ObjectInputStream is, String nombre){
         this.id = id;
         this.oos = os;
         this.ois = is;
+        this.nombre = nombre;
     }
 
+    public void borrar(){
+        try {
+            oos.writeObject("Borrar");
+            oos.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     public void enviar(String mensaje){
         try {
             oos.writeObject("Mensaje");
             oos.writeObject(mensaje);
             oos.flush();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
     public void pintar(LinkedList<Object[]> puntos){
@@ -31,7 +41,7 @@ public class Usuario {
             oos.writeObject(puntos);
             oos.flush();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -41,7 +51,7 @@ public class Usuario {
             oos.writeObject(true);
             oos.flush();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
     public void noEsAnfitrion(){
@@ -50,7 +60,26 @@ public class Usuario {
             oos.writeObject(false);
             oos.flush();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+        }
+    }
+
+    public void enviarPalabra(String palabra){
+        try{
+            oos.writeObject("Palabra");
+            oos.writeObject(palabra);
+            oos.flush();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void actualizarPalabra(){
+        try{
+            oos.writeObject("Actualizar");
+            oos.flush();
+        }catch (IOException e){
+            e.printStackTrace();
         }
     }
 

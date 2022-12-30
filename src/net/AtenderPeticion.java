@@ -18,20 +18,22 @@ public class AtenderPeticion implements Runnable{
     private ObjectInputStream ois;
 
     private Usuario actual;
-    public AtenderPeticion(Socket conexion, LinkedList<Usuario> usuarios) throws IOException {
+    public AtenderPeticion(Socket conexion, LinkedList<Usuario> usuarios) throws IOException, ClassNotFoundException, InterruptedException {
         this.conexion = conexion;
         oos = new ObjectOutputStream(conexion.getOutputStream());
         ois = new ObjectInputStream(conexion.getInputStream());
         String id = conexion.getInetAddress().toString() + conexion.getPort();
+        String nombre = (String) ois.readObject();
         this.usuarios = usuarios;
-        Usuario usr = new Usuario(id, oos, ois);
+        Usuario usr = new Usuario(id, oos, ois, nombre);
 //        if(usuarios.size() == 0)
 //            usr.esAnfitrion();
         actual = usr;
         usuarios.add(usr);
         if(usuarios.size() == 1){
+            Thread.sleep(3000);
             Timer timer = new Timer();
-            timer.schedule(new Cronometro(usuarios), Calendar.getInstance().getTime(), 4000);
+            timer.schedule(new Cronometro(usuarios), Calendar.getInstance().getTime(), 10_000);
         }
 
     }
@@ -46,11 +48,20 @@ public class AtenderPeticion implements Runnable{
                     case "Mensaje" -> enviarMensaje();
                     case "Puntos" -> enviarPintado();
                     case "Salir" -> eliminarUsuario();
+                    case "Borrar" -> borrar();
                 }
             }catch (IOException | ClassNotFoundException e){
                 e.printStackTrace();
                 System.out.println("Adios!");
                 return;
+            }
+        }
+    }
+
+    public void borrar(){
+        for(Usuario us : usuarios){
+            if(!us.equals(actual)){
+                us.borrar();
             }
         }
     }
@@ -61,6 +72,10 @@ public class AtenderPeticion implements Runnable{
 
     public void enviarMensaje() throws IOException, ClassNotFoundException {
         String mensaje = (String)ois.readObject();
+        if(mensaje.equals(Cronometro.palabra)){
+            mensaje = "El usuario " + actual.nombre + " ha acertado la palabra";
+            actual.actualizarPalabra();
+        }
         for (Usuario usr: usuarios){// mejor sin hilos, mandar un mensaje es muy rapido
 //            Thread th = new Thread(new Runnable() {
 //                public void run() {

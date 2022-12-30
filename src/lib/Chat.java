@@ -57,7 +57,15 @@ public class Chat extends JComponent {
         bBorrar.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                paint.borrar();
+                if(esAnfitrion[0]){
+                    paint.borrar();
+                    try {
+                        oos.writeObject("Borrar");
+                        oos.flush();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
             }
         });
         txtEnviar.addKeyListener(new KeyAdapter() {
