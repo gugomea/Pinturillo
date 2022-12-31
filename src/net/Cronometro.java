@@ -25,6 +25,7 @@ public class Cronometro extends TimerTask {
             usuarios.get(actual).esAnfitrion();
             int i = r.nextInt(palabras.length);
             for(Usuario usur: usuarios){
+                usur.borrar();
                 usur.enviar("Es el Turno de " + usuarios.get(actual).nombre);
                 palabra = palabras[i];
                 usur.enviar("La palabra es " + palabra);

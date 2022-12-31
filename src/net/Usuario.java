@@ -3,7 +3,6 @@ package net;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.LinkedList;
 
 public class Usuario {
     public ObjectOutputStream oos;
@@ -27,7 +26,6 @@ public class Usuario {
     }
     public synchronized void enviar(String mensaje){
         try {
-//            oos.writeObject("Mensaje");
             oos.writeObject(mensaje);
             oos.flush();
         } catch (IOException e) {
@@ -36,7 +34,6 @@ public class Usuario {
     }
     public synchronized void pintar(Object[] puntos){
         try {
-//            oos.writeObject("Puntos");
             oos.writeObject(puntos);
             oos.flush();
         } catch (IOException e) {
@@ -46,7 +43,6 @@ public class Usuario {
 
     public synchronized void esAnfitrion(){
         try {
-//            oos.writeObject("Anfitrion");
             oos.writeObject(true);
             oos.flush();
         } catch (IOException e) {
@@ -55,7 +51,6 @@ public class Usuario {
     }
     public synchronized void noEsAnfitrion(){
         try {
-//            oos.writeObject("Anfitrion");
             oos.writeObject(false);
             oos.flush();
         } catch (IOException e) {

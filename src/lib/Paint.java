@@ -9,8 +9,6 @@ import java.awt.event.MouseWheelEvent;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.LinkedList;
-import java.util.Objects;
 
 public class Paint extends JComponent {
 
@@ -21,7 +19,6 @@ public class Paint extends JComponent {
     private Point actual = null, anterior = null;
 
     private int grosor = 5;
-
 
     public ObjectOutputStream oos;
     public ObjectInputStream ois;
@@ -38,7 +35,6 @@ public class Paint extends JComponent {
                     anterior = e.getPoint();
                     graphicPintar.fillOval(anterior.x, anterior.y, grosor, grosor);
                     try{ oos.writeObject(new Object[]{anterior, graphicPintar.getColor(), grosor}); oos.flush(); }catch (IOException ee){ee.printStackTrace();}
-//                    pintar(new Object[]{anterior, graphicPintar.getColor(), grosor});
                     repaint();
                 }
             }
@@ -52,20 +48,10 @@ public class Paint extends JComponent {
                 }
             }
         });
-//        addMouseListener(new MouseAdapter() {
-//            @Override
-//            public void mouseReleased(MouseEvent e) {
-//                if(esAnitrion[0]){
-//                    LinkedList<Object[]> ll = new LinkedList<>(puntos);
-//                    try { oos.writeObject("Puntos");oos.writeObject(ll); oos.flush();} catch (IOException ex) { throw new RuntimeException(ex); }
-//                    puntos.clear();
-//                }
-//            }
-//        });
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
-                    try { oos.writeObject("FinTrazo");oos.flush();} catch (IOException ex) { throw new RuntimeException(ex); }
+                    try { oos.writeObject("FinTrazo");oos.flush();} catch (IOException ex) { ex.printStackTrace(); }
             }
         });
         addMouseWheelListener(new MouseAdapter() {
@@ -81,9 +67,7 @@ public class Paint extends JComponent {
     }
     public void pintar(Point e, boolean mandar){
         actual = e;
-        if(anterior == null){
-            anterior = actual;
-        }
+        if(anterior == null) anterior = actual;
         int x = actual.x , y = actual.y;
         int ax = anterior.x, ay = anterior.y;
         int diffx = x - ax, diffy = y - ay;
@@ -96,7 +80,6 @@ public class Paint extends JComponent {
                 double j = diffx >= 0 ? pendiente: -pendiente;
                 Point p = new Point(ax + k, (int)Math.round(ay + (i * j)));
                 graphicPintar.fillOval(p.x, p.y, grosor, grosor);
-//                            try{ oos.writeObject("Puntos");oos.writeObject(new Object[]{p, graphicPintar.getColor(), grosor}); oos.flush(); }catch (IOException ee){ee.printStackTrace();}
             }
         }else{
             for(int i = 1; i <= longitud; i++){
@@ -104,7 +87,6 @@ public class Paint extends JComponent {
                 double j = diffy >= 0 ? 1 / pendiente: -1/pendiente;
                 Point p = new Point((int)Math.round(ax + (i * j)), ay + k);
                 graphicPintar.fillOval(p.x, p.y, grosor, grosor);
-//                            try{ oos.writeObject("Puntos");oos.writeObject(new Object[]{p, graphicPintar.getColor(), grosor}); oos.flush(); }catch (IOException ee){ee.printStackTrace();}
             }
         }
         graphicPintar.fillOval(x , y, grosor, grosor);
@@ -135,12 +117,11 @@ public class Paint extends JComponent {
 
     public void pintar(Object[] o){
         Color ant = graphicPintar.getColor();
-            Point p = (Point)o[0];
-            Color c = (Color)o[1];
-            int antt = grosor;
-            grosor = (int)o[2];
-            graphicPintar.setColor(c);
-//            graphicPintar.fillOval(p.x, p.y, g, g);
+        Point p = (Point)o[0];
+        Color c = (Color)o[1];
+        int antt = grosor;
+        grosor = (int)o[2];
+        graphicPintar.setColor(c);
         pintar(p, false);
         grosor = antt;
         graphicPintar.setColor(ant);
@@ -151,10 +132,12 @@ public class Paint extends JComponent {
     }
 
     public void borrar(){
-        Color actual = this.graphicPintar.getColor();
-        this.graphicPintar.setColor(this.graphicPintar.getBackground());
-        this.graphicPintar.fillRect(0, 0, getWidth(), getHeight());
-        this.graphicPintar.setColor(actual);
-        repaint();
+        if(this.graphicPintar != null){
+            Color actual = this.graphicPintar.getColor();
+            this.graphicPintar.setColor(this.graphicPintar.getBackground());
+            this.graphicPintar.fillRect(0, 0, getWidth(), getHeight());
+            this.graphicPintar.setColor(actual);
+            repaint();
+        }
     }
 }

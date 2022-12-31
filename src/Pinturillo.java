@@ -1,6 +1,5 @@
 import lib.Chat;
 import lib.Paint;
-import net.Cronometro;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,19 +8,15 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.DatagramSocket;
 import java.net.Socket;
 import java.util.LinkedList;
 import java.util.Random;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
 
 public class Pinturillo extends JFrame {
     private String nombre;
     //Arriba
     private JLabel lblPalabra;
-    private JTextField txtPalabra;
+    private JLabel txtPalabra;
 
     //izquierda
     private Chat chatterino;
@@ -39,7 +34,6 @@ public class Pinturillo extends JFrame {
 
     private String palabra;
     private void inicializar(){
-        esAnfitrion[0] = true;
         try {
             conexion = new Socket("localhost", 55_555);
             oos = new ObjectOutputStream(conexion.getOutputStream());
@@ -55,9 +49,9 @@ public class Pinturillo extends JFrame {
         this.chatterino = new Chat(oos, zonaDibujo, esAnfitrion);
         this.lblPalabra = new JLabel("Palabra: ");
         this.lblPalabra.setFont(new Font(Font.DIALOG, Font.BOLD, 20));
-        this.txtPalabra = new JTextField("__ __ __ __ __ __ __");
+        this.txtPalabra = new JLabel("__ __ __ __ __ __ __");
         this.txtPalabra.setFont(new Font(Font.DIALOG, Font.BOLD, 20));
-
+        this.txtPalabra.setMinimumSize(new Dimension(1000, 10));
     }
     public Pinturillo(String titulo, String nombre){
         super(titulo);
@@ -99,64 +93,32 @@ public class Pinturillo extends JFrame {
                 while(true){
                 try {
                     Object o = ois.readObject();
-                    System.out.println("Ha llegado -> " + o);
-//                        switch (tipo) {
-//                            case "Mensaje" -> {
-//                                String mensaje = (String) ois.readObject();
-//                                chatterino.escribir(mensaje);
-//                            }
-//                            case "Puntos" -> {
-//                                System.out.println(ois.readObject());
-//                                Object[] nuevoDibujo = (Object[]) ois.readObject();
-//                                zonaDibujo.pintar(nuevoDibujo);
-//                            }
-//                            case "Actualizar" ->
-//                                    txtPalabra.setText(palabra);
-//                            case "Palabra" -> {
-//                                palabra = (String) ois.readObject();
-//                                if(esAnfitrion[0])
-//                                    txtPalabra.setText(palabra);
-//                                else
-//                                    txtPalabra.setText("______________");
-//                            }
-//                            case "Borrar" ->
-//                                    zonaDibujo.borrar();
-//                            case "Anfitrion" ->
-//                                    esAnfitrion[0] = (boolean) ois.readObject();
-//                        }
-                        if(o instanceof Boolean){
+                        if(o instanceof Boolean)
                             esAnfitrion[0] = (boolean) o;
-                        }else if(o instanceof Object[]){
+                        else if(o instanceof Object[])
                             zonaDibujo.pintar((Object[]) o);
-                        }else if(o instanceof String){
-                            if(o.equals("Palabra")){
-                                palabra = (String) ois.readObject();
-                                txtPalabra.setText("_____________");
-                                if(esAnfitrion[0])
+                        else if(o instanceof String){
+                            switch ((String)o){
+                                case "Palabra" -> {
+                                    txtPalabra.setForeground(Color.BLACK);
+                                    palabra = (String) ois.readObject();
+                                    String barras = "";
+                                    for(int i = 0; i < palabra.length(); i++) barras += " __ ";
+                                    txtPalabra.setText(barras);
+                                    if(esAnfitrion[0])txtPalabra.setText(palabra);
+                                    else txtPalabra.setForeground(Color.RED);
+                                }
+                                case "Actualizar" -> {
                                     txtPalabra.setText(palabra);
-                            }else if(o.equals("Actualizar"))
-                                txtPalabra.setText(palabra);
-                            else if(o.equals("Borrar"))
-                                zonaDibujo.borrar();
-                            else if (o.equals("FinTrazo")){
-                                zonaDibujo.actualizar();
+                                    txtPalabra.setForeground(Color.GREEN);
+                                }
+                                case "Borrar" -> zonaDibujo.borrar();
+                                case "FinTrazo" -> zonaDibujo.actualizar();
+                                default -> chatterino.escribir((String) o);
                             }
-                            else chatterino.escribir((String)o);
                         }
                 } catch (IOException | ClassNotFoundException e){
                     e.printStackTrace();
-//                    try {
-//                        ois.close();
-//                        oos.close();
-//                        oos = new ObjectOutputStream(conexion.getOutputStream());
-//                        ois = new ObjectInputStream(conexion.getInputStream());
-//                        zonaDibujo.oos = oos;
-//                        zonaDibujo.ois = ois;
-//                        chatterino.oos = oos;
-//                    } catch (IOException ex) {
-//                        throw new RuntimeException(ex);
-//                    }
-                    //lo sincronizo si eso
                     return;
                 }}
             }
@@ -167,16 +129,7 @@ public class Pinturillo extends JFrame {
 
     public static void main(String[] args) {
         LinkedList<String> l = new LinkedList<>();
-        l.add("Guillermo");
-        l.add("Jorge");
-        l.add("Margarita");
-        l.add("Nico");
-        l.add("Iker");
-        l.add("Lucia");
-        l.add("Oscar");
-        l.add("Uno");
-        l.add("Otro");
-        l.add("NombredeOtro");
+        l.add("Guillermo"); l.add("Jorge"); l.add("Margarita"); l.add("Nico"); l.add("Iker"); l.add("Lucia"); l.add("Oscar"); l.add("Uno"); l.add("Otro"); l.add("NombredeOtro");
         Random r = new Random();
         int i = r.nextInt(l.size());
         Pinturillo p = new Pinturillo("titulo", l.get(i));

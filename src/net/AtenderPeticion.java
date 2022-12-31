@@ -7,7 +7,6 @@ import java.net.Socket;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.Timer;
-import java.util.TimerTask;
 
 public class AtenderPeticion implements Runnable{
 
@@ -26,8 +25,6 @@ public class AtenderPeticion implements Runnable{
         String nombre = (String) ois.readObject();
         this.usuarios = usuarios;
         Usuario usr = new Usuario(id, oos, ois, nombre);
-//        if(usuarios.size() == 0)
-//            usr.esAnfitrion();
         actual = usr;
         usuarios.add(usr);
         if(usuarios.size() == 1){
@@ -40,21 +37,15 @@ public class AtenderPeticion implements Runnable{
 
     @Override
     public void run() {
-        String mensaje;
         while(true){
             try {
-//                mensaje = (String)ois.readObject();
-//                switch (mensaje){
-//                    case "Mensaje" -> enviarMensaje();
-//                    case "Puntos" -> enviarPintado();
-//                    case "Salir" -> eliminarUsuario();
-//                    case "Borrar" -> borrar();
-//                 }
                 Object o = ois.readObject();
                 if (o instanceof String){
-                    if(o.equals("Borrar")) borrar();
-                    else if(o.equals("Salir")) eliminarUsuario();
-                    else enviarMensaje((String)o);
+                    switch ((String)o){
+                        case "Borrar" -> borrar();
+                        case "Salir" -> eliminarUsuario();
+                        default -> enviarMensaje((String)o);
+                    }
                 }else if(o instanceof Object[]){
                     enviarPintado((Object[]) o);
                 }
@@ -83,24 +74,14 @@ public class AtenderPeticion implements Runnable{
             mensaje = "El usuario " + actual.nombre + " ha acertado la palabra";
             actual.actualizarPalabra();
         }
-        for (Usuario usr: usuarios){// mejor sin hilos, mandar un mensaje es muy rapido
-//            Thread th = new Thread(new Runnable() {
-//                public void run() {
-                    usr.enviar(mensaje);
-//                }
-//            });
-//            th.start();
-        }
+        for (Usuario usr: usuarios)// mejor sin hilos, mandar un mensaje es muy rapido
+            usr.enviar(mensaje);
     }
     public void enviarPintado(Object[] puntos) throws IOException, ClassNotFoundException {
         for(Usuario usr: usuarios){
-            if(!usr.equals(actual)){
+            if(!usr.equals(actual)){// no volvemos a reenviar al que lo pinta
                 Thread th = new Thread(new Runnable() {
-                    public void run() {
-                    System.out.println("p");
-                        usr.pintar(puntos);
-                    System.out.println("fr");
-                    }
+                    public void run() { usr.pintar(puntos); }
                 });
                 th.start();
             }
