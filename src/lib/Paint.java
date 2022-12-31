@@ -18,14 +18,13 @@ public class Paint extends JComponent {
 
     private Graphics2D graphicPintar;
 
-    private Point actual, anterior;
+    private Point actual = null, anterior = null;
 
     private int grosor = 5;
 
-    private LinkedList<Object[]> puntos = new LinkedList<>();
 
-    private ObjectOutputStream oos;
-    private ObjectInputStream ois;
+    public ObjectOutputStream oos;
+    public ObjectInputStream ois;
 
     private boolean[] esAnitrion;
     public Paint(ObjectOutputStream os, ObjectInputStream is, boolean[] eA){
@@ -38,54 +37,35 @@ public class Paint extends JComponent {
                 if(esAnitrion[0]){
                     anterior = e.getPoint();
                     graphicPintar.fillOval(anterior.x, anterior.y, grosor, grosor);
-                    puntos.add(new Object[]{anterior, graphicPintar.getColor(), grosor});
+                    try{ oos.writeObject(new Object[]{anterior, graphicPintar.getColor(), grosor}); oos.flush(); }catch (IOException ee){ee.printStackTrace();}
+//                    pintar(new Object[]{anterior, graphicPintar.getColor(), grosor});
                     repaint();
                 }
             }
         });
+
         addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
                 if(esAnitrion[0]){
-                    actual = e.getPoint();
-                    int x = actual.x , y = actual.y;
-                    int ax = anterior.x, ay = anterior.y;
-                    int diffx = x - ax, diffy = y - ay;
-                    //longitud del eje en la que la distancia es maxima(para poder dibujar el mayor número de puntos)
-                    int longitud = Math.max(Math.abs(diffx), Math.abs(diffy));
-                    double pendiente = (double) diffy / diffx;
-                    if(Math.abs(pendiente) <= 1){
-                        for(int i = 1; i <= longitud; i++){
-                            int k = diffx >= 0 ? i : - i;
-                            double j = diffx >= 0 ? pendiente: -pendiente;
-                            Point p = new Point(ax + k, (int)Math.round(ay + (i * j)));
-                            graphicPintar.fillOval(p.x, p.y, grosor, grosor);
-                            puntos.add(new Object[]{p, graphicPintar.getColor(), grosor});
-                        }
-                    }else{
-                        for(int i = 1; i <= longitud; i++){
-                            int k = diffy >= 0 ? i: -i;
-                            double j = diffy >= 0 ? 1 / pendiente: -1/pendiente;
-                            Point p = new Point((int)Math.round(ax + (i * j)), ay + k);
-                            graphicPintar.fillOval(p.x, p.y, grosor, grosor);
-                            puntos.add(new Object[]{p, graphicPintar.getColor(), grosor});
-                        }
-                    }
-                    graphicPintar.fillOval(x , y, grosor, grosor);
-                    puntos.add(new Object[]{actual, graphicPintar.getColor(), grosor});
-                    repaint();// actualiza lo que hemos pintado
-                    anterior = actual;
+                    pintar(e.getPoint(), true);
                 }
             }
         });
+//        addMouseListener(new MouseAdapter() {
+//            @Override
+//            public void mouseReleased(MouseEvent e) {
+//                if(esAnitrion[0]){
+//                    LinkedList<Object[]> ll = new LinkedList<>(puntos);
+//                    try { oos.writeObject("Puntos");oos.writeObject(ll); oos.flush();} catch (IOException ex) { throw new RuntimeException(ex); }
+//                    puntos.clear();
+//                }
+//            }
+//        });
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
-                if(esAnitrion[0]){
-                    LinkedList<Object[]> ll = new LinkedList<>(puntos);
-                    try { oos.writeObject("Puntos");oos.writeObject(ll); oos.flush();} catch (IOException ex) { throw new RuntimeException(ex); }
-                    puntos.clear();
-                }
+                    try { oos.writeObject("FinTrazo");oos.flush();} catch (IOException ex) { throw new RuntimeException(ex); }
             }
         });
         addMouseWheelListener(new MouseAdapter() {
@@ -98,6 +78,39 @@ public class Paint extends JComponent {
                 }
             }
         });
+    }
+    public void pintar(Point e, boolean mandar){
+        actual = e;
+        if(anterior == null){
+            anterior = actual;
+        }
+        int x = actual.x , y = actual.y;
+        int ax = anterior.x, ay = anterior.y;
+        int diffx = x - ax, diffy = y - ay;
+        //longitud del eje en la que la distancia es maxima(para poder dibujar el mayor número de puntos)
+        int longitud = Math.max(Math.abs(diffx), Math.abs(diffy));
+        double pendiente = (double) diffy / diffx;
+        if(Math.abs(pendiente) <= 1){
+            for(int i = 1; i <= longitud; i++){
+                int k = diffx >= 0 ? i : - i;
+                double j = diffx >= 0 ? pendiente: -pendiente;
+                Point p = new Point(ax + k, (int)Math.round(ay + (i * j)));
+                graphicPintar.fillOval(p.x, p.y, grosor, grosor);
+//                            try{ oos.writeObject("Puntos");oos.writeObject(new Object[]{p, graphicPintar.getColor(), grosor}); oos.flush(); }catch (IOException ee){ee.printStackTrace();}
+            }
+        }else{
+            for(int i = 1; i <= longitud; i++){
+                int k = diffy >= 0 ? i: -i;
+                double j = diffy >= 0 ? 1 / pendiente: -1/pendiente;
+                Point p = new Point((int)Math.round(ax + (i * j)), ay + k);
+                graphicPintar.fillOval(p.x, p.y, grosor, grosor);
+//                            try{ oos.writeObject("Puntos");oos.writeObject(new Object[]{p, graphicPintar.getColor(), grosor}); oos.flush(); }catch (IOException ee){ee.printStackTrace();}
+            }
+        }
+        graphicPintar.fillOval(x , y, grosor, grosor);
+        if(mandar) try{ oos.writeObject(new Object[]{actual, graphicPintar.getColor(), grosor}); oos.flush(); }catch (IOException ee){ee.printStackTrace();}
+        repaint();// actualiza lo que hemos pintado
+        anterior = actual;
     }
 
     @Override
@@ -116,15 +129,20 @@ public class Paint extends JComponent {
         g.drawImage(this.pintar, 0, 0, null);
     }
 
-    public void pintar(LinkedList<Object[]> l){
+    public void actualizar(){
+        this.anterior = null;
+    }
+
+    public void pintar(Object[] o){
         Color ant = graphicPintar.getColor();
-        for(Object[] o: l){
             Point p = (Point)o[0];
             Color c = (Color)o[1];
-            int g = (int)o[2];
+            int antt = grosor;
+            grosor = (int)o[2];
             graphicPintar.setColor(c);
-            graphicPintar.fillOval(p.x, p.y, g, g);
-        }
+//            graphicPintar.fillOval(p.x, p.y, g, g);
+        pintar(p, false);
+        grosor = antt;
         graphicPintar.setColor(ant);
         repaint();
     }

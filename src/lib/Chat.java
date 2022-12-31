@@ -7,6 +7,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.Collections;
 
 public class Chat extends JComponent {
 
@@ -17,7 +18,7 @@ public class Chat extends JComponent {
     private JButton bPaleta;
     private JTextField txtEnviar;
 
-    private ObjectOutputStream oos;
+    public ObjectOutputStream oos;
     private Paint p;
     private boolean[] esAnfitrion;
     public Chat(ObjectOutputStream os, Paint paint, boolean[] eA){
@@ -79,7 +80,7 @@ public class Chat extends JComponent {
     }
     private void mandar(){
         try {
-            oos.writeObject("Mensaje");
+//            oos.writeObject("Mensaje");
             oos.writeObject(txtEnviar.getText());
             oos.flush();
             txtEnviar.setText("");
@@ -88,7 +89,16 @@ public class Chat extends JComponent {
         }
     }
 
-    public void escribir(String mensaje){
+    public synchronized void escribir(String mensaje){
+//        System.out.println("p");
+//        System.out.println("añado msj al chat : " + mensaje);
+        try { Thread.sleep(10); } catch (InterruptedException e) { throw new RuntimeException(e); }
         this.mensajeChat.addElement(mensaje);
+//        for(Object o: Collections.list(this.mensajeChat.elements())){
+//            System.out.println(o);
+//        }
+//        txtEnviar.setText("");
+//        repaint();
+//        System.out.println("f");
     }
 }

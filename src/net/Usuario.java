@@ -17,8 +17,7 @@ public class Usuario {
         this.ois = is;
         this.nombre = nombre;
     }
-
-    public void borrar(){
+    public synchronized void borrar(){
         try {
             oos.writeObject("Borrar");
             oos.flush();
@@ -26,18 +25,18 @@ public class Usuario {
             e.printStackTrace();
         }
     }
-    public void enviar(String mensaje){
+    public synchronized void enviar(String mensaje){
         try {
-            oos.writeObject("Mensaje");
+//            oos.writeObject("Mensaje");
             oos.writeObject(mensaje);
             oos.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    public void pintar(LinkedList<Object[]> puntos){
+    public synchronized void pintar(Object[] puntos){
         try {
-            oos.writeObject("Puntos");
+//            oos.writeObject("Puntos");
             oos.writeObject(puntos);
             oos.flush();
         } catch (IOException e) {
@@ -45,18 +44,18 @@ public class Usuario {
         }
     }
 
-    public void esAnfitrion(){
+    public synchronized void esAnfitrion(){
         try {
-            oos.writeObject("Anfitrion");
+//            oos.writeObject("Anfitrion");
             oos.writeObject(true);
             oos.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    public void noEsAnfitrion(){
+    public synchronized void noEsAnfitrion(){
         try {
-            oos.writeObject("Anfitrion");
+//            oos.writeObject("Anfitrion");
             oos.writeObject(false);
             oos.flush();
         } catch (IOException e) {
@@ -64,7 +63,7 @@ public class Usuario {
         }
     }
 
-    public void enviarPalabra(String palabra){
+    public synchronized void enviarPalabra(String palabra){
         try{
             oos.writeObject("Palabra");
             oos.writeObject(palabra);
@@ -74,7 +73,7 @@ public class Usuario {
         }
     }
 
-    public void actualizarPalabra(){
+    public synchronized void actualizarPalabra(){
         try{
             oos.writeObject("Actualizar");
             oos.flush();

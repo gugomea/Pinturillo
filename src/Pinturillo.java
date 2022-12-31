@@ -9,6 +9,7 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.DatagramSocket;
 import java.net.Socket;
 import java.util.LinkedList;
 import java.util.Random;
@@ -38,11 +39,13 @@ public class Pinturillo extends JFrame {
 
     private String palabra;
     private void inicializar(){
+        esAnfitrion[0] = true;
         try {
             conexion = new Socket("localhost", 55_555);
             oos = new ObjectOutputStream(conexion.getOutputStream());
             ois = new ObjectInputStream(conexion.getInputStream());
             oos.writeObject(nombre);
+            oos.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -55,42 +58,6 @@ public class Pinturillo extends JFrame {
         this.txtPalabra = new JTextField("__ __ __ __ __ __ __");
         this.txtPalabra.setFont(new Font(Font.DIALOG, Font.BOLD, 20));
 
-        Thread escuchador = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    while(true){
-                        String tipo = (String)ois.readObject();
-                        switch (tipo) {
-                            case "Mensaje" -> {
-                                String mensaje = (String) ois.readObject();
-                                chatterino.escribir(mensaje);
-                            }
-                            case "Puntos" -> {
-                                LinkedList<Object[]> nuevoDibujo = (LinkedList<Object[]>) ois.readObject();
-                                zonaDibujo.pintar(nuevoDibujo);
-                            }
-                            case "Actualizar" ->
-                                txtPalabra.setText(palabra);
-                            case "Palabra" -> {
-                                palabra = (String) ois.readObject();
-                                if(esAnfitrion[0])
-                                    txtPalabra.setText(palabra);
-                                else
-                                    txtPalabra.setText("______________");
-                            }
-                            case "Borrar" ->
-                                zonaDibujo.borrar();
-                            case "Anfitrion" ->
-                                esAnfitrion[0] = (boolean) ois.readObject();
-                        }
-                    }
-                } catch (IOException | ClassNotFoundException e){
-                    e.printStackTrace();
-                }
-            }
-        });
-        escuchador.start();
     }
     public Pinturillo(String titulo, String nombre){
         super(titulo);
@@ -125,6 +92,76 @@ public class Pinturillo extends JFrame {
                 }
             }
         });
+
+        Thread escuchador = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                try {
+                    Object o = ois.readObject();
+                    System.out.println("Ha llegado -> " + o);
+//                        switch (tipo) {
+//                            case "Mensaje" -> {
+//                                String mensaje = (String) ois.readObject();
+//                                chatterino.escribir(mensaje);
+//                            }
+//                            case "Puntos" -> {
+//                                System.out.println(ois.readObject());
+//                                Object[] nuevoDibujo = (Object[]) ois.readObject();
+//                                zonaDibujo.pintar(nuevoDibujo);
+//                            }
+//                            case "Actualizar" ->
+//                                    txtPalabra.setText(palabra);
+//                            case "Palabra" -> {
+//                                palabra = (String) ois.readObject();
+//                                if(esAnfitrion[0])
+//                                    txtPalabra.setText(palabra);
+//                                else
+//                                    txtPalabra.setText("______________");
+//                            }
+//                            case "Borrar" ->
+//                                    zonaDibujo.borrar();
+//                            case "Anfitrion" ->
+//                                    esAnfitrion[0] = (boolean) ois.readObject();
+//                        }
+                        if(o instanceof Boolean){
+                            esAnfitrion[0] = (boolean) o;
+                        }else if(o instanceof Object[]){
+                            zonaDibujo.pintar((Object[]) o);
+                        }else if(o instanceof String){
+                            if(o.equals("Palabra")){
+                                palabra = (String) ois.readObject();
+                                txtPalabra.setText("_____________");
+                                if(esAnfitrion[0])
+                                    txtPalabra.setText(palabra);
+                            }else if(o.equals("Actualizar"))
+                                txtPalabra.setText(palabra);
+                            else if(o.equals("Borrar"))
+                                zonaDibujo.borrar();
+                            else if (o.equals("FinTrazo")){
+                                zonaDibujo.actualizar();
+                            }
+                            else chatterino.escribir((String)o);
+                        }
+                } catch (IOException | ClassNotFoundException e){
+                    e.printStackTrace();
+//                    try {
+//                        ois.close();
+//                        oos.close();
+//                        oos = new ObjectOutputStream(conexion.getOutputStream());
+//                        ois = new ObjectInputStream(conexion.getInputStream());
+//                        zonaDibujo.oos = oos;
+//                        zonaDibujo.ois = ois;
+//                        chatterino.oos = oos;
+//                    } catch (IOException ex) {
+//                        throw new RuntimeException(ex);
+//                    }
+                    //lo sincronizo si eso
+                    return;
+                }}
+            }
+        });
+        escuchador.start();
         setVisible(true);
     }
 

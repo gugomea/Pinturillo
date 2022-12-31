@@ -42,13 +42,21 @@ public class AtenderPeticion implements Runnable{
     public void run() {
         String mensaje;
         while(true){
-            try{
-                mensaje = (String)ois.readObject();
-                switch (mensaje){
-                    case "Mensaje" -> enviarMensaje();
-                    case "Puntos" -> enviarPintado();
-                    case "Salir" -> eliminarUsuario();
-                    case "Borrar" -> borrar();
+            try {
+//                mensaje = (String)ois.readObject();
+//                switch (mensaje){
+//                    case "Mensaje" -> enviarMensaje();
+//                    case "Puntos" -> enviarPintado();
+//                    case "Salir" -> eliminarUsuario();
+//                    case "Borrar" -> borrar();
+//                 }
+                Object o = ois.readObject();
+                if (o instanceof String){
+                    if(o.equals("Borrar")) borrar();
+                    else if(o.equals("Salir")) eliminarUsuario();
+                    else enviarMensaje((String)o);
+                }else if(o instanceof Object[]){
+                    enviarPintado((Object[]) o);
                 }
             }catch (IOException | ClassNotFoundException e){
                 e.printStackTrace();
@@ -70,8 +78,7 @@ public class AtenderPeticion implements Runnable{
         usuarios.remove(actual);
     }
 
-    public void enviarMensaje() throws IOException, ClassNotFoundException {
-        String mensaje = (String)ois.readObject();
+    public void enviarMensaje(String mensaje) throws IOException, ClassNotFoundException {
         if(mensaje.equals(Cronometro.palabra)){
             mensaje = "El usuario " + actual.nombre + " ha acertado la palabra";
             actual.actualizarPalabra();
@@ -85,15 +92,18 @@ public class AtenderPeticion implements Runnable{
 //            th.start();
         }
     }
-    public void enviarPintado() throws IOException, ClassNotFoundException {
-        LinkedList<Object[]> puntos = (LinkedList<Object[]>) ois.readObject();
+    public void enviarPintado(Object[] puntos) throws IOException, ClassNotFoundException {
         for(Usuario usr: usuarios){
-            Thread th = new Thread(new Runnable() {
-                public void run() {
-                    usr.pintar(puntos);
-                }
-            });
-            th.start();
+            if(!usr.equals(actual)){
+                Thread th = new Thread(new Runnable() {
+                    public void run() {
+                    System.out.println("p");
+                        usr.pintar(puntos);
+                    System.out.println("fr");
+                    }
+                });
+                th.start();
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 package net;
 
+import java.util.ConcurrentModificationException;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.TimerTask;
@@ -29,7 +30,7 @@ public class Cronometro extends TimerTask {
                 usur.enviar("La palabra es " + palabra);
                 usur.enviarPalabra(palabra);
             }
-        }catch (IndexOutOfBoundsException e){
+        }catch (IndexOutOfBoundsException | ConcurrentModificationException e){
             e.printStackTrace();
             actual = actual % usuarios.size();
             run();
