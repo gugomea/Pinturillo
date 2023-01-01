@@ -12,11 +12,13 @@ import java.util.TimerTask;
 
 public class Cronometro extends TimerTask {
 
-    private LinkedList<Usuario> usuarios;
-    int actual = 0;
+    private static LinkedList<Usuario> usuarios;
+    private static int actual = 0;
 
-    private String[] palabras;
-    public static String palabra = "Ejemplo(No mostrar)";
+    private static String[] palabras;
+    public static String palabra = "Ejemplo que no se debería ver nunca";
+    private static final Random r = new Random();
+    public static int todos;
     public Cronometro(LinkedList<Usuario> usrs){
         try{
             URL url = new URL("https://www.ejemplos.co/sustantivos-concretos/");
@@ -35,7 +37,9 @@ public class Cronometro extends TimerTask {
         }
         this.usuarios = usrs;
     }
-    private final Random r = new Random();
+    public Cronometro(){
+
+    }
     @Override
     public void run() {
         try{
@@ -44,6 +48,7 @@ public class Cronometro extends TimerTask {
             actual = (actual + 1) % usuarios.size();
             usuarios.get(actual).esAnfitrion();
             int i = r.nextInt(palabras.length);
+            todos = usuarios.size();
             for(Usuario usur: usuarios){
                 usur.borrar();
                 usur.enviar("Es el Turno de " + usuarios.get(actual).nombre);

@@ -17,6 +17,8 @@ public class AtenderPeticion implements Runnable{
     private ObjectInputStream ois;
 
     private Usuario actual;
+    private int acertados = 0;
+    private static Timer timer;
     public AtenderPeticion(Socket conexion, LinkedList<Usuario> usuarios) throws IOException, ClassNotFoundException, InterruptedException {
         this.conexion = conexion;
         oos = new ObjectOutputStream(conexion.getOutputStream());
@@ -29,7 +31,7 @@ public class AtenderPeticion implements Runnable{
         usuarios.add(usr);
         if(usuarios.size() == 1){
             Thread.sleep(3000);
-            Timer timer = new Timer();
+            timer = new Timer();
             timer.schedule(new Cronometro(usuarios), Calendar.getInstance().getTime(), 10_000);
         }
 
@@ -73,6 +75,13 @@ public class AtenderPeticion implements Runnable{
         if(mensaje.equals(Cronometro.palabra)){
             mensaje = "El usuario " + actual.nombre + " ha acertado la palabra";
             actual.actualizarPalabra();
+            acertados++;
+            if(acertados == Cronometro.todos - 1){
+                timer.cancel();timer.purge();
+                timer = new Timer();
+                timer.schedule(new Cronometro(), Calendar.getInstance().getTime(), 10_000);
+                acertados = 0;
+            }
         }else if(!mensaje.equals("Principio"))
             mensaje = actual.nombre + ": " + mensaje;
         for (Usuario usr: usuarios)// mejor sin hilos, mandar un mensaje es muy rapido
