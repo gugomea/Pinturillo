@@ -73,7 +73,8 @@ public class AtenderPeticion implements Runnable{
         if(mensaje.equals(Cronometro.palabra)){
             mensaje = "El usuario " + actual.nombre + " ha acertado la palabra";
             actual.actualizarPalabra();
-        }else mensaje = actual.nombre + ": " + mensaje;
+        }else if(!mensaje.equals("Principio"))
+            mensaje = actual.nombre + ": " + mensaje;
         for (Usuario usr: usuarios)// mejor sin hilos, mandar un mensaje es muy rapido
             usr.enviar(mensaje);
     }

@@ -109,7 +109,6 @@ public class Paint extends JComponent {
 
     public void actualizar(){
         this.anterior = null;
-        System.out.println("fin");
     }
 
     public void pintar(Object[] o){
