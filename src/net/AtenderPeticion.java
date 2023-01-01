@@ -17,7 +17,7 @@ public class AtenderPeticion implements Runnable{
     private ObjectInputStream ois;
 
     private Usuario actual;
-    private int acertados = 0;
+    public static int acertados = 0;
     private static Timer timer;
     public AtenderPeticion(Socket conexion, LinkedList<Usuario> usuarios) throws IOException, ClassNotFoundException, InterruptedException {
         this.conexion = conexion;
@@ -80,7 +80,6 @@ public class AtenderPeticion implements Runnable{
                 timer.cancel();timer.purge();
                 timer = new Timer();
                 timer.schedule(new Cronometro(), Calendar.getInstance().getTime(), 10_000);
-                acertados = 0;
             }
         }else if(!mensaje.equals("Principio"))
             mensaje = actual.nombre + ": " + mensaje;

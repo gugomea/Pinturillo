@@ -43,6 +43,7 @@ public class Cronometro extends TimerTask {
     @Override
     public void run() {
         try{
+            AtenderPeticion.acertados = 0;
             System.out.println("HOLA DESDE CRONOMETRO");
             usuarios.get(actual).noEsAnfitrion();
             actual = (actual + 1) % usuarios.size();
