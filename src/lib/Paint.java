@@ -34,6 +34,7 @@ public class Paint extends JComponent {
                 if(esAnitrion[0]){
                     anterior = e.getPoint();
                     graphicPintar.fillOval(anterior.x, anterior.y, grosor, grosor);
+                    try { oos.writeObject("Principio");oos.flush();} catch (IOException ex) { ex.printStackTrace(); }
                     try{ oos.writeObject(new Object[]{anterior, graphicPintar.getColor(), grosor}); oos.flush(); }catch (IOException ee){ee.printStackTrace();}
                     repaint();
                 }
@@ -46,12 +47,6 @@ public class Paint extends JComponent {
                 if(esAnitrion[0]){
                     pintar(e.getPoint(), true);
                 }
-            }
-        });
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                    try { oos.writeObject("FinTrazo");oos.flush();} catch (IOException ex) { ex.printStackTrace(); }
             }
         });
         addMouseWheelListener(new MouseAdapter() {
@@ -67,7 +62,8 @@ public class Paint extends JComponent {
     }
     public void pintar(Point e, boolean mandar){
         actual = e;
-        if(anterior == null) anterior = actual;
+        if(anterior == null)
+            anterior = actual;
         int x = actual.x , y = actual.y;
         int ax = anterior.x, ay = anterior.y;
         int diffx = x - ax, diffy = y - ay;
@@ -113,6 +109,7 @@ public class Paint extends JComponent {
 
     public void actualizar(){
         this.anterior = null;
+        System.out.println("fin");
     }
 
     public void pintar(Object[] o){

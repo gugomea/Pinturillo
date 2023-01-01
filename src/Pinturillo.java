@@ -98,14 +98,15 @@ public class Pinturillo extends JFrame {
                         else if(o instanceof Object[])
                             zonaDibujo.pintar((Object[]) o);
                         else if(o instanceof String){
-                            switch ((String)o){
+                            String msj = (String)o;
+                            switch (msj){
                                 case "Palabra" -> {
                                     txtPalabra.setForeground(Color.BLACK);
                                     palabra = (String) ois.readObject();
                                     String barras = "";
                                     for(int i = 0; i < palabra.length(); i++) barras += " __ ";
                                     txtPalabra.setText(barras);
-                                    if(esAnfitrion[0])txtPalabra.setText(palabra);
+                                    if(esAnfitrion[0]) txtPalabra.setText(palabra);
                                     else txtPalabra.setForeground(Color.RED);
                                 }
                                 case "Actualizar" -> {
@@ -113,8 +114,10 @@ public class Pinturillo extends JFrame {
                                     txtPalabra.setForeground(Color.GREEN);
                                 }
                                 case "Borrar" -> zonaDibujo.borrar();
-                                case "FinTrazo" -> zonaDibujo.actualizar();
-                                default -> chatterino.escribir((String) o);
+                                case "Principio" -> {
+                                    if(!esAnfitrion[0]) zonaDibujo.actualizar();
+                                }
+                                default -> chatterino.escribir(msj);
                             }
                         }
                 } catch (IOException | ClassNotFoundException e){
@@ -128,10 +131,8 @@ public class Pinturillo extends JFrame {
     }
 
     public static void main(String[] args) {
-        LinkedList<String> l = new LinkedList<>();
-        l.add("Guillermo"); l.add("Jorge"); l.add("Margarita"); l.add("Nico"); l.add("Iker"); l.add("Lucia"); l.add("Oscar"); l.add("Uno"); l.add("Otro"); l.add("NombredeOtro");
         Random r = new Random();
-        int i = r.nextInt(l.size());
-        Pinturillo p = new Pinturillo("titulo", l.get(i));
+        int i = r.nextInt(100);
+        Pinturillo p = new Pinturillo("titulo", "Usuario " + i);
     }
 }

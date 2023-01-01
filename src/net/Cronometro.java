@@ -1,5 +1,10 @@
 package net;
 
+import javax.net.ssl.HttpsURLConnection;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ConcurrentModificationException;
 import java.util.LinkedList;
 import java.util.Random;
@@ -10,9 +15,24 @@ public class Cronometro extends TimerTask {
     private LinkedList<Usuario> usuarios;
     int actual = 0;
 
-    private String[] palabras = new String[]{"MANZANA", "MESA", "OCÉANO", "SILLA", "ORDENADOR", "PERA", "LEÓN", "NIÑO", "CASA", "COCHE", "TECLADO", "LIBRO", "LÁMPARA"};
+    private String[] palabras;
     public static String palabra = "Ejemplo(No mostrar)";
     public Cronometro(LinkedList<Usuario> usrs){
+        try{
+            URL url = new URL("https://www.ejemplos.co/sustantivos-concretos/");
+            HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
+            BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            String l, doc = "";
+            while((l = br.readLine()) != null)
+                doc += l;
+
+            int i = doc.indexOf("<tr>");
+            int j = doc.lastIndexOf("</tr>") + "</tr>".length();
+            this.palabras = doc.substring(i, j).replaceAll("</?tr>", "").replaceAll("</?td>", " ").trim().split("  ");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         this.usuarios = usrs;
     }
     private final Random r = new Random();
