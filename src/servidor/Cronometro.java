@@ -49,7 +49,6 @@ public class Cronometro extends TimerTask {
     @Override
     public void run() {
         try{
-            AtenderPeticion.acertados = 0;
             System.out.println("HOLA DESDE CRONOMETRO");
             usuarios.get(actual).noEsAnfitrion();
             actual = (actual + 1) % usuarios.size();
@@ -66,6 +65,13 @@ public class Cronometro extends TimerTask {
             }
             usuarios.get(actual).acertado = true;
         }catch (IndexOutOfBoundsException | ConcurrentModificationException e){
+            // en caso de que haya algún fallo(se elimine un usuario, lo cual hace que el tamaño sea menor, y después
+            // vayamos a ese usuario, el usuario ya no será valido, o el índice puede ser incorrecto
+            // así que "actualizamos" el índice y volvemos  a llamar a la función.
+
+            // Tal y como pone en la teoría Vector es thread safe pero preferí usar List porque es mejor para lo que
+            // quiero usar y el único problema (habrá más pero no los he visto) que puede surgir es este y tiene un
+            // sencillo arreglo.
             e.printStackTrace();
             actual = actual % usuarios.size();
             run();

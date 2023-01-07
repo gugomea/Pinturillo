@@ -18,7 +18,6 @@ public class AtenderPeticion implements Runnable{
     private ObjectInputStream ois;
 
     private Usuario actual;
-    public static int acertados = 0;
     private static Timer timer;
     public AtenderPeticion(Socket conexion, LinkedList<Usuario> usuarios) throws IOException, ClassNotFoundException, InterruptedException {
         this.conexion = conexion;
