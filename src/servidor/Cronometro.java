@@ -23,6 +23,7 @@ public class Cronometro extends TimerTask {
     public Cronometro(LinkedList<Usuario> usrs){
         BufferedReader br = null;
         try{
+            // nos conectamos a esta url y parseamos una tabla con bastantes sustantivos
             URL url = new URL("https://www.ejemplos.co/sustantivos-concretos/");
             HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
             con.setRequestMethod("GET");
@@ -31,8 +32,8 @@ public class Cronometro extends TimerTask {
             while((l = br.readLine()) != null)
                 doc += l;
 
-            int i = doc.indexOf("<tr>");
-            int j = doc.lastIndexOf("</tr>") + "</tr>".length();
+            int i = doc.indexOf("<tr>");//primera fila
+            int j = doc.lastIndexOf("</tr>") + "</tr>".length();//última fila
             palabras = doc.substring(i, j).replaceAll("</?tr>", "").replaceAll("</?td>", " ").trim().split("  ");
         } catch (IOException e) {
             e.printStackTrace();

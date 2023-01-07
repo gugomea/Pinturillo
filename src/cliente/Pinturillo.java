@@ -99,14 +99,14 @@ public class Pinturillo extends JFrame {
                 while(true){
                 try {
                     Object o = ois.readObject();
-                        if(o instanceof Boolean)
+                        if(o instanceof Boolean) // actualizar si somos anfitriones o no
                             esAnfitrion[0] = (boolean) o;
-                        else if(o instanceof Object[])
+                        else if(o instanceof Object[]) // pintar el Object[]{Punto, Color, Grosor}
                             zonaDibujo.pintar((Object[]) o);
                         else if(o instanceof String){
                             String msj = (String)o;
                             switch (msj){
-                                case "Palabra" -> {
+                                case "Palabra" -> {//Nos tienen que enviar la palabra a adivinar
                                     txtPalabra.setForeground(Color.BLACK);
                                     palabra = (String) ois.readObject();
                                     String barras = "";
@@ -115,15 +115,15 @@ public class Pinturillo extends JFrame {
                                     if(esAnfitrion[0]) txtPalabra.setText(palabra);
                                     else txtPalabra.setForeground(Color.RED);
                                 }
-                                case "Actualizar" -> {
+                                case "Actualizar" -> {//Hemos acertado la palabra
                                     txtPalabra.setText(palabra);
                                     txtPalabra.setForeground(Color.GREEN);
                                 }
                                 case "Borrar" -> zonaDibujo.borrar();
-                                case "Principio" -> {
+                                case "Principio" -> {//Es el comienzo de un trazo, así que hay que actualizar el punto "anterior"
                                     if(!esAnfitrion[0]) zonaDibujo.actualizar();
                                 }
-                                default -> chatterino.escribir(msj);
+                                default -> chatterino.escribir(msj);//no tiene palabras clave, así que es un mensaje
                             }
                         }
                 } catch (IOException | ClassNotFoundException e){
@@ -147,6 +147,9 @@ public class Pinturillo extends JFrame {
     }
 
     public static void main(String[] args) {
+        // solo he utilizado ObjectInput/OutputStream ya que si apunto con dos Readers al mismo stream
+        // el segundo reader lee la cabecera del primero, y saltan excepciones. Tenemos la suerte de que todo
+        // en java es un objeto y con un simple instance of se puede saber el tipo del objeto enviado
         Random r = new Random();
         int i = r.nextInt(100);
         Pinturillo p = new Pinturillo("titulo", "Usuario " + i);

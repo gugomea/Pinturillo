@@ -57,6 +57,7 @@ public class Paint extends JComponent {
         addMouseWheelListener(new MouseAdapter() {
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
+                //cambiar el grosor con la rueda del ratón
                 if(e.getWheelRotation() < 0){
                     grosor = Math.min(grosor + 2, 80);
                 }else{
@@ -66,6 +67,8 @@ public class Paint extends JComponent {
         });
     }
     public void pintar(Point e, boolean mandar){
+        // función en la que rellenamos los huecos que se pueden formar entre los puntos si el ratón
+        // se mueve rápido.
         actual = e;
         if(anterior == null)
             anterior = actual;
@@ -118,6 +121,7 @@ public class Paint extends JComponent {
     }
 
     public void pintar(Object[] o){
+        // Sabemos que el Object[] es de la forma {Punto, Color, Grosor}
         Color ant = graphicPintar.getColor();
         Point p = (Point)o[0];
         Color c = (Color)o[1];

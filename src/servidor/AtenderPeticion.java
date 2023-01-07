@@ -14,6 +14,8 @@ public class AtenderPeticion implements Runnable{
     private Socket conexion;
 
     private LinkedList<Usuario> usuarios;
+
+    // en realidad oos y ois lo podriamos quitar y usar actual.oos y actual.ois.
     private ObjectOutputStream oos;
     private ObjectInputStream ois;
 
@@ -34,6 +36,9 @@ public class AtenderPeticion implements Runnable{
             timer = new Timer();
             timer.schedule(new Cronometro(usuarios), Calendar.getInstance().getTime(), 10_000);
         }else{
+            // si no es el primero en unirse, entonces se ha metido en una ronda que está en curso.
+            // así que esta fuera de la ronda = true, y palabra acertada = true (true ya que si te unes en medio de la ronda
+            // el resultado de este usuario no hay que tenerlo en cuenta en la ronda actual)
             actual.fuera = true;
             actual.acertado = true;
         }
@@ -97,7 +102,7 @@ public class AtenderPeticion implements Runnable{
             actual.acertado = true;
             if(todosAcertados())
                 resetRonda();
-        }else if(!mensaje.equals("Principio"))
+        }else if(!mensaje.equals("Principio"))// si el mensaje es un comentario del usuario
             mensaje = actual.nombre + ": " + mensaje;
         for (Usuario usr: usuarios)// mejor sin hilos, mandar un mensaje es muy rapido
             usr.enviar(mensaje);
