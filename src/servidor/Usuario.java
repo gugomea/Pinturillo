@@ -1,15 +1,21 @@
-package net;
+package servidor;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-public class Usuario {
+public class Usuario implements Closeable {
+    // los metodos son synchronized porque como el envio de informacion es paralelo, si un usuario empieza a enviar
+    // un objeto y sin haber acabado otro hilo empieza a enviarlo, las cabeceras se mezclan y la apicación se para.
     public ObjectOutputStream oos;
     public ObjectInputStream ois;
     public String id;
 
     public String nombre;
+
+    public boolean fuera = false;
+    public boolean acertado = false;
     public Usuario(String id, ObjectOutputStream os, ObjectInputStream is, String nombre){
         this.id = id;
         this.oos = os;
@@ -81,5 +87,14 @@ public class Usuario {
     public boolean equals(Object obj) {
         Usuario usr = obj instanceof Usuario ? (Usuario) obj : null;
         return usr != null && this.id.equals(usr.id);
+    }
+
+    @Override
+    public void close() throws IOException {
+        try{
+            oos.close();
+        }finally {
+            ois.close();
+        }
     }
 }

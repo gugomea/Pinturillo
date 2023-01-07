@@ -1,4 +1,5 @@
-package net;
+package servidor;
+import cliente.Pinturillo;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -33,6 +34,9 @@ public class AtenderPeticion implements Runnable{
             Thread.sleep(3000);
             timer = new Timer();
             timer.schedule(new Cronometro(usuarios), Calendar.getInstance().getTime(), 10_000);
+        }else{
+            actual.fuera = true;
+            actual.acertado = true;
         }
 
     }
@@ -42,7 +46,7 @@ public class AtenderPeticion implements Runnable{
         while(true){
             try {
                 Object o = ois.readObject();
-                if (o instanceof String){
+                if (o instanceof String && !actual.fuera){
                     switch ((String)o){
                         case "Borrar" -> borrar();
                         case "Salir" -> eliminarUsuario();
@@ -67,20 +71,33 @@ public class AtenderPeticion implements Runnable{
         }
     }
 
+    private void resetRonda(){
+        timer.cancel();timer.purge();
+        timer = new Timer();
+        timer.schedule(new Cronometro(), Calendar.getInstance().getTime(), 10_000);
+    }
+
     public void eliminarUsuario(){
         usuarios.remove(actual);
+        if(todosAcertados()) resetRonda();
+        Pinturillo.Cerrar(actual);
+        Pinturillo.Cerrar(conexion);
+    }
+
+    private boolean todosAcertados(){
+        for(Usuario u: usuarios)
+            if(!u.acertado) return false;
+
+        return true;
     }
 
     public void enviarMensaje(String mensaje) throws IOException, ClassNotFoundException {
         if(mensaje.equals(Cronometro.palabra)){
             mensaje = "El usuario " + actual.nombre + " ha acertado la palabra";
             actual.actualizarPalabra();
-            acertados++;
-            if(acertados == Cronometro.todos - 1){
-                timer.cancel();timer.purge();
-                timer = new Timer();
-                timer.schedule(new Cronometro(), Calendar.getInstance().getTime(), 10_000);
-            }
+            actual.acertado = true;
+            if(todosAcertados())
+                resetRonda();
         }else if(!mensaje.equals("Principio"))
             mensaje = actual.nombre + ": " + mensaje;
         for (Usuario usr: usuarios)// mejor sin hilos, mandar un mensaje es muy rapido

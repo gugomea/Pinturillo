@@ -1,15 +1,17 @@
-import lib.Chat;
-import lib.Paint;
+package cliente;
+
+import componentes.Chat;
+import componentes.Paint;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.LinkedList;
 import java.util.Random;
 
 public class Pinturillo extends JFrame {
@@ -28,6 +30,7 @@ public class Pinturillo extends JFrame {
 
     private ObjectInputStream ois;
 
+    // es boolean[] para compartir la misma variable con el chat y la zona de dibujo
     private boolean[] esAnfitrion = new boolean[1];
 
     private Socket conexion;
@@ -80,9 +83,12 @@ public class Pinturillo extends JFrame {
                     System.out.println("ME salgo de acá");
                     oos.writeObject("Salir");
                     oos.flush();
-                    conexion.close();
                 } catch (IOException ex) {
                     ex.printStackTrace();
+                }finally {
+                    Cerrar(oos);
+                    Cerrar(ois);
+                    Cerrar(conexion);
                 }
             }
         });
@@ -128,6 +134,16 @@ public class Pinturillo extends JFrame {
         });
         escuchador.start();
         setVisible(true);
+    }
+
+    public static void Cerrar(Closeable c){
+        if(c != null) {
+            try {
+                c.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public static void main(String[] args) {

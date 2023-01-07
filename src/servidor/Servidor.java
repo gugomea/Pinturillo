@@ -1,4 +1,4 @@
-package net;
+package servidor;
 
 import java.io.*;
 import java.net.*;
@@ -8,8 +8,8 @@ import java.util.concurrent.Executors;
 
 public class Servidor {
     public static void main(String[] args) {
+        ExecutorService pool = Executors.newCachedThreadPool();
         try(ServerSocket server = new ServerSocket(55_555)){
-            ExecutorService pool = Executors.newCachedThreadPool();
             LinkedList<Usuario> usuarios = new LinkedList<>();
             while(true){
                 try{
@@ -22,6 +22,8 @@ public class Servidor {
             }
         }catch (IOException e){
             e.printStackTrace();
+        }finally {
+            pool.shutdown();
         }
     }
 }

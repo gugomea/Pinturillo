@@ -1,4 +1,4 @@
-package lib;
+package componentes;
 
 import javax.swing.*;
 import java.awt.*;
@@ -89,7 +89,10 @@ public class Chat extends JComponent {
         }
     }
 
-    public synchronized void escribir(String mensaje){
+    public void escribir(String mensaje){
+        // A veces, cuando se escriben comentarios, estos existen en el objeto,
+        // pero no se muestran en el chat, igual es porque JList<String> usa por debajo vector
+        // por eso el Thread.sleep() para que no haya problemas.
         try { Thread.sleep(10); } catch (InterruptedException e) { throw new RuntimeException(e); }
         this.mensajeChat.addElement(mensaje);
     }

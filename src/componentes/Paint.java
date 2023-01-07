@@ -1,4 +1,4 @@
-package lib;
+package componentes;
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,6 +24,8 @@ public class Paint extends JComponent {
     public ObjectInputStream ois;
 
     private boolean[] esAnitrion;
+
+    private int maxWidth, maxHeight;
     public Paint(ObjectOutputStream os, ObjectInputStream is, boolean[] eA){
         this.esAnitrion = eA;
         this.oos = os;
@@ -34,6 +36,8 @@ public class Paint extends JComponent {
                 if(esAnitrion[0]){
                     anterior = e.getPoint();
                     graphicPintar.fillOval(anterior.x, anterior.y, grosor, grosor);
+                    // mandamos que comienza el trazo, ya que de otra forma this.anterior seria el último punto
+                    // dibujado en el anterior trazo, y dibujaría una línea recta entre estos, en vez de no hacer nada.
                     try { oos.writeObject("Principio");oos.flush();} catch (IOException ex) { ex.printStackTrace(); }
                     try{ oos.writeObject(new Object[]{anterior, graphicPintar.getColor(), grosor}); oos.flush(); }catch (IOException ee){ee.printStackTrace();}
                     repaint();
@@ -45,6 +49,7 @@ public class Paint extends JComponent {
             @Override
             public void mouseDragged(MouseEvent e) {
                 if(esAnitrion[0]){
+                    // para pintar puntos individuales y no trazos
                     pintar(e.getPoint(), true);
                 }
             }
@@ -74,6 +79,7 @@ public class Paint extends JComponent {
             for(int i = 1; i <= longitud; i++){
                 int k = diffx >= 0 ? i : - i;
                 double j = diffx >= 0 ? pendiente: -pendiente;
+                // se hace round para coger el punto mas cercano a la pendiente.
                 Point p = new Point(ax + k, (int)Math.round(ay + (i * j)));
                 graphicPintar.fillOval(p.x, p.y, grosor, grosor);
             }
@@ -97,10 +103,10 @@ public class Paint extends JComponent {
             //Para calcular el tamaño maximo.
             Toolkit tk = Toolkit.getDefaultToolkit();
             Dimension dim = tk.getScreenSize();
-            int w = (int) dim.getWidth();
-            int h = (int) dim.getHeight();
+            maxWidth = (int) dim.getWidth();
+            maxHeight = (int) dim.getHeight();
 
-            this.pintar = createImage(w, h);
+            this.pintar = createImage(maxWidth,maxHeight);
             this.graphicPintar = (Graphics2D) this.pintar.getGraphics();
             this.graphicPintar.setPaint(Color.BLACK);
         }
@@ -131,7 +137,7 @@ public class Paint extends JComponent {
         if(this.graphicPintar != null){
             Color actual = this.graphicPintar.getColor();
             this.graphicPintar.setColor(this.graphicPintar.getBackground());
-            this.graphicPintar.fillRect(0, 0, getWidth(), getHeight());
+            this.graphicPintar.fillRect(0, 0, maxWidth, maxHeight);
             this.graphicPintar.setColor(actual);
             repaint();
         }
