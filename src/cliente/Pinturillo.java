@@ -89,6 +89,7 @@ public class Pinturillo extends JFrame {
                     Cerrar(oos);
                     Cerrar(ois);
                     Cerrar(conexion);
+                    dispose();
                 }
             }
         });
